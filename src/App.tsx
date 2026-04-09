@@ -36,7 +36,8 @@ import {
   Trash2,
   Share2,
   Download,
-  History
+  History,
+  ArrowUpDown
 } from 'lucide-react';
 
 interface SavedAnalysis extends AnalysisResult {
@@ -79,6 +80,7 @@ export default function App() {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | SavedAnalysis | null>(null);
   const [history, setHistory] = useState<SavedAnalysis[]>([]);
+  const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
   const detalhesRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -89,7 +91,8 @@ export default function App() {
         // Garante que itens antigos sem ID ganhem um ID único para não dar erro ao excluir
         const comIds = parsed.map((item: any, index: number) => ({
           ...item,
-          id: item.id || `old-${Date.now()}-${index}`
+          id: item.id || `old-${Date.now()}-${index}`,
+          savedAt: item.savedAt || Date.now() - index * 1000
         }));
         setHistory(comIds); 
       } catch (e) {}
@@ -439,6 +442,12 @@ Retorne ESTRITAMENTE no formato JSON solicitado.`;
     return '🟢 Verde';
   };
 
+  const sortedHistory = [...history].sort((a, b) => {
+    const timeA = a.savedAt || 0;
+    const timeB = b.savedAt || 0;
+    return sortOrder === 'desc' ? timeB - timeA : timeA - timeB;
+  });
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-800 pb-20">
       {/* Header */}
@@ -544,17 +553,27 @@ Retorne ESTRITAMENTE no formato JSON solicitado.`;
                     <History size={18} className="text-lime-500" />
                     Histórico Salvo
                   </h2>
-                  <button 
-                    onClick={clearAllHistory}
-                    className="text-xs font-medium text-slate-400 hover:text-red-500 flex items-center gap-1 transition-colors px-2 py-1 rounded-md hover:bg-red-50"
-                    title="Limpar todo o histórico"
-                  >
-                    <Trash2 size={14} />
-                    Limpar tudo
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <button 
+                      onClick={() => setSortOrder(prev => prev === 'desc' ? 'asc' : 'desc')}
+                      className="text-xs font-medium text-slate-400 hover:text-lime-600 flex items-center gap-1 transition-colors px-2 py-1 rounded-md hover:bg-lime-50"
+                      title="Ordenar histórico"
+                    >
+                      <ArrowUpDown size={14} />
+                      {sortOrder === 'desc' ? 'Mais recentes' : 'Mais antigos'}
+                    </button>
+                    <button 
+                      onClick={clearAllHistory}
+                      className="text-xs font-medium text-slate-400 hover:text-red-500 flex items-center gap-1 transition-colors px-2 py-1 rounded-md hover:bg-red-50"
+                      title="Limpar todo o histórico"
+                    >
+                      <Trash2 size={14} />
+                      Limpar tudo
+                    </button>
+                  </div>
                 </div>
                 <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                  {history.map(item => (
+                  {sortedHistory.map(item => (
                     <div 
                       key={item.id} 
                       onClick={() => loadFromHistory(item)} 

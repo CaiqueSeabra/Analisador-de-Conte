@@ -84,7 +84,15 @@ export default function App() {
   useEffect(() => {
     const saved = localStorage.getItem('@conta-pro:history');
     if (saved) {
-      try { setHistory(JSON.parse(saved)); } catch (e) {}
+      try { 
+        const parsed = JSON.parse(saved);
+        // Garante que itens antigos sem ID ganhem um ID único para não dar erro ao excluir
+        const comIds = parsed.map((item: any, index: number) => ({
+          ...item,
+          id: item.id || `old-${Date.now()}-${index}`
+        }));
+        setHistory(comIds); 
+      } catch (e) {}
     }
   }, []);
 

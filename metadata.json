@@ -1,0 +1,5 @@
+{
+  "name": "Analisador de Conta de Luz",
+  "description": "Leitor inteligente que simula a extração de dados de uma conta de luz via foto e classifica o consumo.",
+  "requestFramePermissions": []
+}

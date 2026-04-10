@@ -442,10 +442,43 @@ Retorne ESTRITAMENTE no formato JSON solicitado.`;
     return '🟢 Verde';
   };
 
+  const parseMesReferencia = (mesRef: string) => {
+    if (!mesRef || mesRef === 'N/D') return 0;
+    const parts = mesRef.split('/');
+    if (parts.length !== 2) return 0;
+    
+    const mesStr = parts[0].toLowerCase().trim().substring(0, 3);
+    const anoStr = parts[1].trim();
+    
+    const meses: Record<string, number> = {
+      'jan': 1, 'fev': 2, 'mar': 3, 'abr': 4, 'mai': 5, 'jun': 6,
+      'jul': 7, 'ago': 8, 'set': 9, 'out': 10, 'nov': 11, 'dez': 12
+    };
+    
+    const mesNum = meses[mesStr] || 0;
+    let anoNum = parseInt(anoStr, 10) || 0;
+    
+    if (anoNum === 0 || mesNum === 0) return 0;
+    
+    // Converte anos com 2 dígitos para 4 dígitos (ex: 26 -> 2026)
+    if (anoNum < 100) anoNum += 2000;
+    
+    // Retorna no formato YYYYMM para facilitar a ordenação numérica (ex: 202604)
+    return anoNum * 100 + mesNum;
+  };
+
   const sortedHistory = [...history].sort((a, b) => {
-    const timeA = a.savedAt || 0;
-    const timeB = b.savedAt || 0;
-    return sortOrder === 'desc' ? timeB - timeA : timeA - timeB;
+    const valA = parseMesReferencia(a.mesReferencia);
+    const valB = parseMesReferencia(b.mesReferencia);
+    
+    // Se o mês for igual ou inválido, usa a data em que foi salvo como desempate
+    if (valA === valB) {
+      const timeA = a.savedAt || 0;
+      const timeB = b.savedAt || 0;
+      return sortOrder === 'desc' ? timeB - timeA : timeA - timeB;
+    }
+    
+    return sortOrder === 'desc' ? valB - valA : valA - valB;
   });
 
   return (

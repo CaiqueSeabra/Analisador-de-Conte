@@ -516,18 +516,15 @@ Retorne ESTRITAMENTE no formato JSON solicitado.`;
                 Enviar Fatura
               </h2>
               
-              <div className="flex gap-3 mb-6">
-                <label htmlFor="cameraInput" className="flex-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 py-3 rounded-xl text-sm font-medium cursor-pointer transition-colors flex items-center justify-center gap-2">
-                  <Camera size={18} className="text-slate-500" />
-                  Câmera
-                </label>
-                <label htmlFor="galleryInput" className="flex-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 py-3 rounded-xl text-sm font-medium cursor-pointer transition-colors flex items-center justify-center gap-2">
-                  <ImageIcon size={18} className="text-slate-500" />
-                  Galeria
+              <div className="mb-6">
+                <label htmlFor="imageInput" className="w-full bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-300 hover:border-lime-500 text-slate-700 py-8 rounded-2xl text-sm font-medium cursor-pointer transition-all flex flex-col items-center justify-center gap-3 group">
+                  <div className="bg-white p-3 rounded-full shadow-sm border border-slate-200 group-hover:scale-110 transition-transform">
+                    <Camera size={24} className="text-lime-600" />
+                  </div>
+                  <span className="font-semibold text-slate-700">Tirar Foto ou Escolher da Galeria</span>
                 </label>
               </div>
-              <input type="file" id="cameraInput" accept="image/*" capture="environment" className="hidden" onChange={handleFileChange} />
-              <input type="file" id="galleryInput" accept="image/*" className="hidden" onChange={handleFileChange} />
+              <input type="file" id="imageInput" accept="image/*" className="hidden" onChange={handleFileChange} />
 
               {imageSrc ? (
                 <div className="rounded-xl overflow-hidden border border-slate-200 bg-slate-100 mb-6 aspect-[3/4] relative group">

@@ -37,7 +37,9 @@ import {
   Share2,
   Download,
   History,
-  ArrowUpDown
+  ArrowUpDown,
+  Copy,
+  MessageCircle
 } from 'lucide-react';
 
 interface SavedAnalysis extends AnalysisResult {
@@ -213,9 +215,9 @@ export default function App() {
     }
   };
 
-  const handleShare = async () => {
-    if (!result) return;
-    const text = `📊 *Análise Completa da Conta de Luz (Pro)*
+  const getReportText = () => {
+    if (!result) return '';
+    return `📊 *Análise Completa da Conta de Luz (Pro)*
 
 🏢 *Distribuidora:* ${result.distribuidora}
 📍 *Local:* ${result.cidade}
@@ -245,20 +247,20 @@ ${result.analiseComparativa}
 
 ${result.anomaliasDetectadas.length > 0 ? `🚨 *ANOMALIAS DETECTADAS*\n${result.anomaliasDetectadas.map(a => `• ${a}`).join('\n')}\n` : ''}
 Gerado por Analisador de Conta Pro.`;
+  };
 
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: 'Minha Análise de Conta de Luz',
-          text: text,
-        });
-      } catch (err) {
-        console.log('Erro ao compartilhar', err);
-      }
-    } else {
-      navigator.clipboard.writeText(text);
-      alert('Resumo completo copiado para a área de transferência!');
-    }
+  const handleCopy = () => {
+    const text = getReportText();
+    if (!text) return;
+    navigator.clipboard.writeText(text);
+    alert('✅ Resumo copiado! Agora é só colar no WhatsApp ou onde quiser.');
+  };
+
+  const handleWhatsApp = () => {
+    const text = getReportText();
+    if (!text) return;
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(url, '_blank');
   };
 
   const getIncentiveMessage = (variacao: number) => {
@@ -663,20 +665,30 @@ Retorne ESTRITAMENTE no formato JSON solicitado.`;
               <div ref={detalhesRef} className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-500">
                 
                 {/* Actions Bar */}
-                <div className="flex justify-end gap-3 print:hidden" data-html2canvas-ignore="true">
+                <div className="flex justify-end gap-2 print:hidden" data-html2canvas-ignore="true">
                   <button 
-                    onClick={handleShare}
-                    className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors shadow-sm"
+                    onClick={handleCopy}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors shadow-sm"
+                    title="Copiar texto"
                   >
-                    <Share2 size={16} />
-                    Compartilhar
+                    <Copy size={16} />
+                    <span className="hidden sm:inline">Copiar</span>
+                  </button>
+                  <button 
+                    onClick={handleWhatsApp}
+                    className="flex items-center gap-1.5 px-3 py-2 bg-[#25D366] text-white rounded-lg text-sm font-medium hover:bg-[#20bd5a] transition-colors shadow-sm"
+                    title="Enviar para o WhatsApp"
+                  >
+                    <MessageCircle size={16} />
+                    <span className="hidden sm:inline">WhatsApp</span>
                   </button>
                   <button 
                     onClick={handleExportPDF}
-                    className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors shadow-sm"
+                    className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors shadow-sm"
+                    title="Baixar PDF"
                   >
                     <Download size={16} />
-                    Exportar PDF
+                    <span className="hidden sm:inline">PDF</span>
                   </button>
                 </div>
 

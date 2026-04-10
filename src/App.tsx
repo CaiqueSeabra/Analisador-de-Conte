@@ -1,7 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { GoogleGenAI, Type } from '@google/genai';
-import html2canvas from 'html2canvas';
-import { jsPDF } from 'jspdf';
 import {
   BarChart as RechartsBarChart,
   Bar,
@@ -35,11 +33,8 @@ import {
   Loader2,
   Trash2,
   Share2,
-  Download,
   History,
-  ArrowUpDown,
-  Copy,
-  MessageCircle
+  ArrowUpDown
 } from 'lucide-react';
 
 interface SavedAnalysis extends AnalysisResult {
@@ -161,63 +156,9 @@ export default function App() {
     setResult(null);
   };
 
-  const handleExportPDF = async () => {
-    if (!detalhesRef.current) return;
-    
-    try {
-      const element = detalhesRef.current;
-      
-      // Salva o estilo original
-      const originalStyle = element.style.cssText;
-      
-      // Ajusta o estilo temporariamente para o PDF (fundo branco, padding)
-      element.style.backgroundColor = '#f8fafc';
-      element.style.padding = '20px';
-      element.style.borderRadius = '0px';
-      
-      const canvas = await html2canvas(element, {
-        scale: 2, // Maior qualidade
-        useCORS: true,
-        backgroundColor: '#f8fafc',
-      });
-      
-      // Restaura o estilo original
-      element.style.cssText = originalStyle;
-
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4',
-      });
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-      
-      let heightLeft = pdfHeight;
-      let position = 0;
-      const pageHeight = pdf.internal.pageSize.getHeight();
-
-      pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-      heightLeft -= pageHeight;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - pdfHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, position, pdfWidth, pdfHeight);
-        heightLeft -= pageHeight;
-      }
-
-      pdf.save(`Analise_Conta_${result?.mesReferencia?.replace('/', '_') || 'Luz'}.pdf`);
-    } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
-      alert('Ocorreu um erro ao gerar o PDF. Tente novamente.');
-    }
-  };
-
-  const getReportText = () => {
-    if (!result) return '';
-    return `📊 *Análise Completa da Conta de Luz (Pro)*
+  const handleShare = async () => {
+    if (!result) return;
+    const text = `📊 *Análise Completa da Conta de Luz (Pro)*
 
 🏢 *Distribuidora:* ${result.distribuidora}
 📍 *Local:* ${result.cidade}
@@ -247,20 +188,20 @@ ${result.analiseComparativa}
 
 ${result.anomaliasDetectadas.length > 0 ? `🚨 *ANOMALIAS DETECTADAS*\n${result.anomaliasDetectadas.map(a => `• ${a}`).join('\n')}\n` : ''}
 Gerado por Analisador de Conta Pro.`;
-  };
 
-  const handleCopy = () => {
-    const text = getReportText();
-    if (!text) return;
-    navigator.clipboard.writeText(text);
-    alert('✅ Resumo copiado! Agora é só colar no WhatsApp ou onde quiser.');
-  };
-
-  const handleWhatsApp = () => {
-    const text = getReportText();
-    if (!text) return;
-    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
-    window.open(url, '_blank');
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Minha Análise de Conta de Luz',
+          text: text,
+        });
+      } catch (err) {
+        console.log('Erro ao compartilhar', err);
+      }
+    } else {
+      navigator.clipboard.writeText(text);
+      alert('Resumo completo copiado para a área de transferência!');
+    }
   };
 
   const getIncentiveMessage = (variacao: number) => {
@@ -665,30 +606,13 @@ Retorne ESTRITAMENTE no formato JSON solicitado.`;
               <div ref={detalhesRef} className="space-y-6 animate-in fade-in slide-in-from-bottom-8 duration-500">
                 
                 {/* Actions Bar */}
-                <div className="flex justify-end gap-2 print:hidden" data-html2canvas-ignore="true">
+                <div className="flex justify-end gap-3 print:hidden" data-html2canvas-ignore="true">
                   <button 
-                    onClick={handleCopy}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors shadow-sm"
-                    title="Copiar texto"
+                    onClick={handleShare}
+                    className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors shadow-sm"
                   >
-                    <Copy size={16} />
-                    <span className="hidden sm:inline">Copiar</span>
-                  </button>
-                  <button 
-                    onClick={handleWhatsApp}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-[#25D366] text-white rounded-lg text-sm font-medium hover:bg-[#20bd5a] transition-colors shadow-sm"
-                    title="Enviar para o WhatsApp"
-                  >
-                    <MessageCircle size={16} />
-                    <span className="hidden sm:inline">WhatsApp</span>
-                  </button>
-                  <button 
-                    onClick={handleExportPDF}
-                    className="flex items-center gap-1.5 px-3 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg text-sm font-medium hover:bg-slate-50 transition-colors shadow-sm"
-                    title="Baixar PDF"
-                  >
-                    <Download size={16} />
-                    <span className="hidden sm:inline">PDF</span>
+                    <Share2 size={16} />
+                    Compartilhar
                   </button>
                 </div>
 

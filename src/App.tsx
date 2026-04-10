@@ -516,12 +516,13 @@ Retorne ESTRITAMENTE no formato JSON solicitado.`;
                 Enviar Fatura
               </h2>
               
-              <div className="mb-6">
-                <label htmlFor="imageInput" className="w-full bg-slate-50 hover:bg-slate-100 border-2 border-dashed border-slate-300 hover:border-lime-500 text-slate-700 py-8 rounded-2xl text-sm font-medium cursor-pointer transition-all flex flex-col items-center justify-center gap-3 group">
-                  <div className="bg-white p-3 rounded-full shadow-sm border border-slate-200 group-hover:scale-110 transition-transform">
-                    <Camera size={24} className="text-lime-600" />
+              <div className="mb-6 relative group">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-lime-400 to-yellow-400 rounded-2xl blur opacity-50 group-hover:opacity-100 transition duration-500"></div>
+                <label htmlFor="imageInput" className="relative w-full bg-white hover:bg-slate-50 border border-lime-100 py-6 rounded-2xl text-sm font-medium cursor-pointer transition-all flex flex-col items-center justify-center gap-3">
+                  <div className="bg-gradient-to-br from-lime-400 to-yellow-400 p-3.5 rounded-full shadow-[0_0_20px_rgba(163,230,53,0.4)] group-hover:scale-110 transition-transform duration-300">
+                    <ImageIcon size={26} className="text-white" />
                   </div>
-                  <span className="font-semibold text-slate-700">Tirar Foto ou Escolher da Galeria</span>
+                  <span className="font-bold bg-gradient-to-r from-lime-600 to-yellow-500 bg-clip-text text-transparent tracking-wide text-lg">Buscar na galeria</span>
                 </label>
               </div>
               <input type="file" id="imageInput" accept="image/*" className="hidden" onChange={handleFileChange} />
@@ -539,7 +540,7 @@ Retorne ESTRITAMENTE no formato JSON solicitado.`;
                 <div className="rounded-xl border-2 border-dashed border-slate-200 bg-slate-50 mb-6 aspect-[3/4] flex flex-col items-center justify-center text-slate-500 p-6 text-center">
                   <FileText size={40} className="mb-4 text-slate-300" />
                   <p className="font-medium text-slate-600 mb-1">Nenhuma imagem</p>
-                  <p className="text-sm text-slate-400">Tire uma foto ou escolha na galeria para analisar.</p>
+                  <p className="text-sm text-slate-400">Clique no botão acima para buscar uma conta na sua galeria.</p>
                 </div>
               )}
 
